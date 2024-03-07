@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	dctapi "github.com/delphix/dct-sdk-go"
+	dctapi "github.com/delphix/dct-sdk-go/v10"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -390,9 +390,16 @@ func resourceEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta i
 	})
 
 	if diags != nil {
-		ErrorLog.Printf("Error Env-Read failed for EnvId:%s. Removing from state file.", envId)
-		d.SetId("")
-		return diags
+		_, diags := PollForObjectDeletion(func() (interface{}, *http.Response, error) {
+			return client.EnvironmentsApi.GetEnvironmentById(ctx, envId).Execute()
+		})
+		if diags != nil {
+			ErrorLog.Printf("Error in polling of environment for deletion.")
+		} else {
+			ErrorLog.Printf("Error Env-Read failed for EnvId:%s. Removing from state file.", envId)
+			d.SetId("")
+		}
+		return nil
 	}
 
 	envRes, _ := apiRes.(*dctapi.Environment)

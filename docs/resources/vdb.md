@@ -3,9 +3,7 @@
 In Delphix terminology, a VDB is a database provisioned from either a dSource or another VDB which is a full read/write copy of the source data. 
 A VDB is created and managed by the Delphix Continuous Data Engine.
 
-
-The VDB resource allows terraform to CREATE (also known as Provision), READ, UPDATE and DELETE Delphix Virtual Databases (VDB). 
-Update operation does not support all VDB parameters. The supported parameters are listed below.
+The VDB resource allows Terraform to create, update, and delete Delphix VDBs. This specifically enables the apply and destroy Terraform commands. Update operation does not support all VDB parameters. All supported parameters are listed below.
 
 ## Example Usage
 Provisioning can be done in 2 methods, provision by snapshot and provision by timestamp.
@@ -63,9 +61,9 @@ resource "delphix_vdb" "vdb_name" {
 
 * `target_group_id` - (Optional) The ID of the group into which the VDB will be provisioned. If unset, a group is selected randomly on the Engine.
 
-* `vdb_name` - (Optional) The unique name of the provisioned VDB within a group. If unset, a name is randomly generated.
+* `name` - (Optional) The unique name of the provisioned VDB within a group. If unset, a name is randomly generated.
 
-* `database_name` - (Optional) The name of the database on the target environment. Defaults to vdb_name.
+* `database_name` - (Optional) The name of the database on the target environment. Defaults to name.
 
 * `cdb_id` - (Optional) The ID of the container database (CDB) to provision an Oracle Multitenant database into. When this is not set, a new vCDB will be provisioned.
 
@@ -222,6 +220,42 @@ Environment variable to be set when the engine creates a VDB. See the Engine doc
 * `tags` - (Optional) The tags to be created for VDB. This is a map of 2 parameters:
   * `key` - (Required) Key of the tag
   * `value` - (Required) Value of the tag
+
+* `make_current_account_owner` - (Optional) Whether the account provisioning this VDB must be configured as owner of the VDB. 
+
+* `config_params` - (Optional) Database configuration parameter overrides
+
+* `appdata_source_params` - The JSON payload conforming to the DraftV4 schema based on the type of application data being manipulated.
+
+* `appdata_config_params` - (Optional) The list of parameters specified by the source config schema in the toolkit
+
+* `additional_mount_points` - (Optional) Specifies additional locations on which to mount a subdirectory of an AppData container
+  * `shared_path` - (Required) Relative path within the container of the directory that should be mounted.
+  * `mount_path` - (Required) Absolute path on the target environment were the filesystem should be mounted
+  * `environment_id` - (Required) The entity ID of the environment on which the file system will be mounted.
+
+* `vcdb_tde_key_identifier` - (Optional) ID of the key created by Delphix. (Oracle Multitenant Only)
+
+* `cdb_tde_keystore_password` - (Optional) The password for the Transparent Data Encryption keystore associated with the CDB. (Oracle Multitenant Only)
+
+* `target_vcdb_tde_keystore_path` - (Optional) Path to the keystore of the target vCDB. (Oracle Multitenant Only)
+
+* `tde_key_identifier` - (Optional) ID of the key created by Delphix. (Oracle Multitenant Only)
+
+* `tde_exported_key_file_secret` - (Optional) Secret to be used while exporting and importing vPDB encryption keys if Transparent Data Encryption is enabled on the vPDB. (Oracle Multitenant Only)
+
+* `parent_tde_keystore_password` - (Optional) The password of the keystore specified in parentTdeKeystorePath. (Oracle Multitenant Only)
+
+* `parent_tde_keystore_path` - (Optional) Path to a copy of the parent's Oracle transparent data encryption keystore on the target host. Required to provision from snapshots containing encrypted database files. (Oracle Multitenant Only)
+
+* `oracle_rac_custom_env_vars` - (Optional) Environment variable to be set when the engine creates an Oracle RAC VDB. See the Engine documentation for the list of allowed/denied environment variables and rules about substitution.
+  * `node_id` - (Required) The node id of the cluster.
+  * `name` - (Required) Name of the environment variable
+  * `value` - (Required) Value of the environment variable.
+
+* `oracle_rac_custom_env_files` - (Optional) Environment files to be sourced when the Engine creates an Oracle RAC VDB. This path can be followed by parameters. Paths and parameters are separated by spaces.
+  * `node_id` - (Required) The node id of the cluster.
+  * `path_parameters` - (Required) This references a file from which certain parameters will be loaded.
 
 
 ## Attribute Reference

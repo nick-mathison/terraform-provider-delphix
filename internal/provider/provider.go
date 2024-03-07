@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	dctapi "github.com/delphix/dct-sdk-go"
+	dctapi "github.com/delphix/dct-sdk-go/v10"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -59,9 +59,11 @@ func Provider(version string) func() *schema.Provider {
 				},
 			},
 			ResourcesMap: map[string]*schema.Resource{
-				"delphix_vdb":         resourceVdb(),
-				"delphix_vdb_group":   resourceVdbGroup(),
-				"delphix_environment": resourceEnvironment(),
+				"delphix_vdb":             resourceVdb(),
+				"delphix_vdb_group":       resourceVdbGroup(),
+				"delphix_environment":     resourceEnvironment(),
+				"delphix_appdata_dsource": resourceAppdataDsource(),
+				"delphix_oracle_dsource":  resourceOracleDsource(),
 			},
 		}
 
@@ -86,6 +88,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: d.Get("tls_insecure_skip").(bool)},
 		}}
 		cfg.AddDefaultHeader("Authorization", "apk "+d.Get("key").(string))
+		cfg.AddDefaultHeader("x-dct-client-name", "Terraform")
 
 		client := dctapi.NewAPIClient(cfg)
 

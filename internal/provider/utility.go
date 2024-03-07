@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	dctapi "github.com/delphix/dct-sdk-go"
+	dctapi "github.com/delphix/dct-sdk-go/v10"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
@@ -110,6 +110,21 @@ func flattenHosts(hosts []dctapi.Host) []interface{} {
 			returnedHosts[i] = returnedHost
 		}
 		return returnedHosts
+	}
+	return make([]interface{}, 0)
+}
+
+func flattenAdditionalMountPoints(additional_mount_points []dctapi.AdditionalMountPoint) []interface{} {
+	if additional_mount_points != nil {
+		returned_additional_mount_points := make([]interface{}, len(additional_mount_points))
+		for i, additional_mount_point := range additional_mount_points {
+			returned_additional_mount_point := make(map[string]interface{})
+			returned_additional_mount_point["shared_path"] = additional_mount_point.GetSharedPath()
+			returned_additional_mount_point["mount_path"] = additional_mount_point.GetMountPath()
+			returned_additional_mount_point["environment_id"] = additional_mount_point.GetEnvironmentId()
+			returned_additional_mount_points[i] = returned_additional_mount_point
+		}
+		return returned_additional_mount_points
 	}
 	return make([]interface{}, 0)
 }
